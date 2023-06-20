@@ -28,7 +28,7 @@
     Request Body: JSON object representing the updated todo item.
     Response: 200 OK if the todo item was found and updated, or 404 Not Found if not found.
     Example: PUT http://localhost:3000/todos/123
-    Request Body: { "title": "Buy groceries", "completed": true }
+    Request Body: { "title": "Buy groceries", "completed": true } 
     
   5. DELETE /todos/:id - Delete a todo item by ID
     Description: Deletes a todo item identified by its ID.
@@ -39,11 +39,87 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-const express = require('express');
-const bodyParser = require('body-parser');
+
+// "test-fileServer": "node ./node_modules/jest/bin/jest.js ./tests/fileServer.test.js"
+const express = require("express");
+const bodyParser = require("body-parser");
 
 const app = express();
 
 app.use(bodyParser.json());
+
+let todoList = [];
+
+app.get("/todos", (req, res) => {
+  res.send(todoList);
+});
+
+app.get("/todos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  let requiredTodo = {};
+  let flag = false;
+  for (let i = 0; i < todoList.length; i++) {
+    if (todoList[i].id === id) {
+      requiredTodo = todoList[i];
+      flag = true;
+    }
+  }
+
+  if (flag === false) res.status(404).send();
+  else res.send(requiredTodo);
+});
+
+app.post("/todos", (req, res) => {
+  let counter = parseInt(Math.random() * 10);
+  const { title, description } = req.body;
+
+  const data = {
+    id: counter,
+    title: title,
+    description: description,
+  };
+  todoList.push(data);
+
+  res.status(201).send(todoList);
+});
+
+app.put("/todos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  let index = -1;
+  for (let i = 0; i < todoList.length; i++) {
+    if (todoList[i].id === id) {
+      todoList[i].title = req.body.title;
+      todoList[i].description = req.body.description;
+      index = i;
+      break;
+    }
+  }
+  if (index !== -1) res.send(todoList[index]);
+  else res.status(404).send();
+});
+app.delete("/todos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  let flag = false;
+  for (let i = 0; i < todoList.length; i++) {
+    if (todoList[i].id === id) {
+      todoList.splice(i, 1);
+      flag = true;
+      break;
+    }
+  }
+  if (flag === true) res.status(200).send();
+  else res.status(404).send();
+});
+
+app.use((req, res, next) => {
+  res.status(404).send();
+});
+
+// app.listen(3000, () => {
+//   console.log("Server is started");
+// });
 
 module.exports = app;
