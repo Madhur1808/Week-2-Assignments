@@ -49,9 +49,9 @@ const app = express();
 app.use(bodyParser.json());
 
 let todoList = [];
-
+let counter = 0;
 app.get("/todos", (req, res) => {
-  res.send(todoList);
+  res.json(todoList);
 });
 
 app.get("/todos/:id", (req, res) => {
@@ -67,21 +67,22 @@ app.get("/todos/:id", (req, res) => {
   }
 
   if (flag === false) res.status(404).send();
-  else res.send(requiredTodo);
+  else res.json(requiredTodo);
 });
 
 app.post("/todos", (req, res) => {
-  let counter = parseInt(Math.random() * 10);
+  // let counter = Math.floor(Math.random() * 100000);
+  counter++;
   const { title, description } = req.body;
 
-  const data = {
+  const newTodo = {
     id: counter,
     title: title,
     description: description,
   };
-  todoList.push(data);
+  todoList.push(newTodo);
 
-  res.status(201).send(todoList);
+  res.status(201).json(newTodo);
 });
 
 app.put("/todos/:id", (req, res) => {
@@ -96,7 +97,7 @@ app.put("/todos/:id", (req, res) => {
       break;
     }
   }
-  if (index !== -1) res.send(todoList[index]);
+  if (index !== -1) res.json(todoList[index]);
   else res.status(404).send();
 });
 app.delete("/todos/:id", (req, res) => {
