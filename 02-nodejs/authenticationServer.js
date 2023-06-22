@@ -13,6 +13,7 @@
     Example: POST http://localhost:3000/signup
 
   2. POST /login - User Login
+
     Description: Gets user back their details like firstname, lastname and id
     Request Body: JSON object with username and password fields.
     Response: 200 OK with an authentication token in JSON format if successful, or 401 Unauthorized if the credentials are invalid.
@@ -29,9 +30,70 @@
   Testing the server - run `npm run test-authenticationServer` command in terminal
  */
 
-const express = require("express")
+// write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
+const express = require("express");
 const PORT = 3000;
 const app = express();
-// write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
+const bodyParser = require("body-parser");
 
+app.use(bodyParser.json());
+
+let users = [];
+let counter = 0;
+
+app.get("/data", (req, res) => {
+  const { email, password } = req.headers;
+  const userIndex = users.findIndex((user) => {
+    return user.email === email && user.password === password;
+  });
+  if (userIndex === -1) res.sendStatus(401);
+  else {
+    const userToBeReturn = users.map((user) => {
+      return {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      };
+    });
+    res.json({ users: userToBeReturn });
+  }
+});
+
+app.post("/signup", (req, res) => {
+  counter++;
+  const newUser = {
+    id: counter,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    userName: req.body.userName,
+    email: req.body.email,
+    password: req.body.password,
+  };
+  const userIndex = users.findIndex((user) => user.email === req.body.email);
+  if (userIndex === -1) {
+    users.push(newUser);
+    res.status(201).send("Signup successful");
+  } else res.status(400).send("User already exists");
+});
+
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  console.log(email, password);
+  const userIndex = users.findIndex((user) => {
+    return user.email === email && user.password === password;
+  });
+
+  if (userIndex === -1) res.status(401).send("Invalid credentials");
+  else {
+    res.send({
+      firstName: users[userIndex].firstName,
+      lastName: users[userIndex].lastName,
+      email: users[userIndex].email,
+    });
+  }
+});
+
+// app.listen(PORT, (req, res) => {
+//   console.log("Server started");
+// });
 module.exports = app;

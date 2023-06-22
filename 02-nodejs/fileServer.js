@@ -20,7 +20,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const app = express();
-const PORT = 3000;
+// const PORT = 3000;
 
 app.get("/files", (req, res) => {
   const dirPath = path.join(__dirname, "./files/");
@@ -33,7 +33,7 @@ app.get("/files", (req, res) => {
 
 app.get("/file/:filename", (req, res) => {
   const fileName = req.params.filename;
-  console.log(fileName);
+  // console.log(fileName);
   const filePath = path.join(__dirname, "./files/", fileName);
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) res.status(404).send("File not found");
